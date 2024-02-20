@@ -10,17 +10,21 @@ class VoiceAssistant {
   );
 
   static void setListener() {
-    player.playerStateStream.listen((state) {
-      Log.log.fine('player state: $state');
-      if (state.processingState == ProcessingState.completed ||
-          (state.processingState == ProcessingState.idle)) {
-        if (state.processingState == ProcessingState.completed) {
-          MyApp.homePageStateKey.currentState!.changeOpacity(true);
-        } else {
-          MyApp.homePageStateKey.currentState!
-              .changeOpacity(true, refresh: false);
+    Future.delayed(Duration(milliseconds: 1000), () {
+      player.playerStateStream.listen((state) {
+        Log.log.fine('player state: $state');
+        if (state.processingState == ProcessingState.completed ||
+            (state.processingState == ProcessingState.idle)) {
+          if (MyApp.homePageStateKey.currentState != null) {
+            if (state.processingState == ProcessingState.completed) {
+              MyApp.homePageStateKey.currentState!.changeOpacity(true);
+            } else {
+              MyApp.homePageStateKey.currentState!
+                  .changeOpacity(true, refresh: false);
+            }
+          }
         }
-      }
+      });
     });
   }
 
