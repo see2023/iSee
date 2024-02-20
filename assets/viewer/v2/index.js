@@ -195,6 +195,29 @@ async function setVisemes(visemesValuesString) {
 	}, 10);
 }
 
+async function appendVisemes(visemesValuesString) {
+	try {
+		let newVisemes = JSON.parse(visemesValuesString);
+		if (visemes.length < 1) {
+			visemesStartTime = new Date().getTime();
+			light_intensity_delta = 0.8;
+		}
+		visemes = visemes.concat(newVisemes);
+		console.log('appendVisemes: ', newVisemes, ', visemes.length: ', visemes.length)
+		sendMessageToApp("append new visemes.length: " + newVisemes.length + ', visemes.length: ' + visemes.length);
+	} catch (error) {
+		sendMessageToApp("error parsing visemes: " + error)
+	}
+}
+
+async function clearVisemes() {
+	visemes = [];
+	visemesStartTime = 0;
+	light_intensity_delta = 0;
+	console.log('clearVisemes')
+	sendMessageToApp("clear visemes");
+}
+
 async function playBlinkAnimation() {
 	if (!human || !mouthSmileMorphTarget) {
 		console.log('playMorphTargetAnimation: human or mouthSmileMorphTarget is null')

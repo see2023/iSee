@@ -41,6 +41,7 @@ class SimpleChatController extends GetxController {
     for (var msg in pendingMessages) {
       if (msg.author.id == me.id) {
         skipPendingMessagesPrefetch();
+
         return true;
       }
     }
@@ -61,6 +62,11 @@ class SimpleChatController extends GetxController {
       id: DB.uuid.v4(),
       text: text,
     );
+    if (isMe) {
+      pendingMessages.clear();
+      prefeatchAudioMessages.clear();
+      stopSpeech();
+    }
     pendingMessages.add(textMessage);
   }
 
@@ -192,8 +198,7 @@ class SimpleChatController extends GetxController {
     }
     Log.log.fine('add message: ${msg.text}, user: ${msg.author.id}');
     addMessage(msg);
-    await processMessage(msg,
-        speech: msg.author.id != me.id && !pendingMessagesContainsAppMsg());
+    await processMessage(msg, speech: msg.author.id != me.id);
   }
 
   void addMessage(types.Message message) {
@@ -245,12 +250,18 @@ class SimpleChatController extends GetxController {
       if (rt.status) {
         Log.log.fine(
             'start sending visemes to webview, ${rt.visemesText.length} visemes');
-        MyApp.glbViewerStateKey.currentState!.sendVisemes(rt.visemesText);
+        MyApp.glbViewerStateKey.currentState!.appendVisemes(rt.visemesText);
         MyApp.homePageStateKey.currentState!.changeOpacity(false);
         await VoiceAssistant.play(rt.wavFilePath);
         Log.log.fine('end playing speech: ${message.text}');
       }
     }
+  }
+
+  Future<void> stopSpeech() async {
+    MyApp.glbViewerStateKey.currentState!.clearVisemes();
+    await VoiceAssistant.stop();
+    MyApp.homePageStateKey.currentState!.changeOpacity(true);
   }
 }
 

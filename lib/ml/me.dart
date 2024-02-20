@@ -9,7 +9,6 @@ import 'package:see_me_now/data/log.dart';
 import 'package:see_me_now/data/models/task.dart';
 import 'package:see_me_now/main.dart';
 import 'package:see_me_now/ml/see_me.dart';
-import 'package:see_me_now/tools/voice_assistant.dart';
 import 'package:see_me_now/ui/camera_view.dart';
 import 'package:see_me_now/ui/home_page.dart';
 
@@ -169,9 +168,7 @@ class Me {
             if (DB.setting.enablePoseReminder) {
               if (DB.setting.enableAIReplyFromCamera) {
                 defaultSpeaker.notifyAskew();
-              } else {
-                VoiceAssistant.notifyAskew();
-              }
+              } else {}
             }
           }
         }

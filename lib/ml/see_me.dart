@@ -144,7 +144,7 @@ The response content should be short and easy to understand and should not excee
         final HomeController c = Get.find<HomeController>();
         c.setReminderTxt(text);
       }
-      VoiceAssistant.play(rt.wavFilePath, clearReminderTxt: showTextInHome);
+      VoiceAssistant.play(rt.wavFilePath);
     }
   }
 
