@@ -55,11 +55,11 @@ class SimpleChatController extends GetxController {
     }
   }
 
-  void addPendingMessage(String text, {bool isMe = false}) {
+  void addPendingMessage(String text, String id, {bool isMe = false}) {
     final textMessage = types.TextMessage(
       author: isMe ? me : users[activeUser.value]!,
       createdAt: DateTime.now().millisecondsSinceEpoch,
-      id: DB.uuid.v4(),
+      id: id.isEmpty ? DB.uuid.v4() : id,
       text: text,
     );
     if (isMe) {
