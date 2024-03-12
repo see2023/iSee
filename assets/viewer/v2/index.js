@@ -6,6 +6,7 @@ let scene = null;
 let human = null;
 const indexMapper = new MorphTargetMapIndex();
 let visemes = [];
+let visemesFps = 60;
 let visemesStartTime;
 let mouthSmileMorphTarget;
 let leftEyeBlinkMorphTarget;
@@ -144,7 +145,7 @@ const createScene = async function () {
 		if (!visemes || visemes.length < 1 || !visemesStartTime) {
 			return;
 		}
-		var frameIndex = Math.floor((now - visemesStartTime) / (1000 / 60));
+		var frameIndex = Math.floor((now - visemesStartTime) / (1000 / visemesFps));
 		if (frameIndex >= visemes.length) {
 			visemes = [];
 			visemesStartTime = 0;
@@ -195,7 +196,7 @@ async function setVisemes(visemesValuesString) {
 	}, 10);
 }
 
-async function appendVisemes(visemesValuesString) {
+async function appendVisemes(visemesValuesString, fps) {
 	try {
 		let newVisemes = JSON.parse(visemesValuesString);
 		if (visemes.length < 1) {
@@ -203,6 +204,7 @@ async function appendVisemes(visemesValuesString) {
 			light_intensity_delta = 0.8;
 		}
 		visemes = visemes.concat(newVisemes);
+		visemesFps = fps;
 		console.log('appendVisemes: ', newVisemes, ', visemes.length: ', visemes.length)
 		sendMessageToApp("append new visemes.length: " + newVisemes.length + ', visemes.length: ' + visemes.length);
 	} catch (error) {

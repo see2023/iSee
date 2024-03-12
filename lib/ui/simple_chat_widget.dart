@@ -1,4 +1,7 @@
 import 'dart:async';
+import 'dart:io';
+import 'dart:convert';
+import 'dart:typed_data';
 import 'package:flutter/material.dart';
 import 'package:flutter_chat_types/flutter_chat_types.dart' as types;
 import 'package:flutter_chat_ui/flutter_chat_ui.dart';
@@ -26,6 +29,7 @@ class SimpleChatController extends GetxController {
       id: SettingValueConstants.me, lastName: SettingValueConstants.me);
   List<types.TextMessage> pendingMessages = [];
   final Map<String, int> prefeatchAudioMessages = <String, int>{};
+  double visemesFps = 60.0;
 
   Future<void> consumePendingMessages() async {
     if (pendingMessages.isEmpty) {
@@ -40,8 +44,6 @@ class SimpleChatController extends GetxController {
   bool pendingMessagesContainsAppMsg() {
     for (var msg in pendingMessages) {
       if (msg.author.id == me.id) {
-        skipPendingMessagesPrefetch();
-
         return true;
       }
     }
@@ -62,12 +64,31 @@ class SimpleChatController extends GetxController {
       id: id.isEmpty ? DB.uuid.v4() : id,
       text: text,
     );
-    if (isMe) {
+    if (isMe && text.length > 2) {
       pendingMessages.clear();
       prefeatchAudioMessages.clear();
       stopSpeech();
     }
     pendingMessages.add(textMessage);
+  }
+
+  Future<void> addWavAndVisemes(String id, String textId, Uint8List audioData,
+      List<List<int>> visemes, double visemesFps) async {
+    if (DB.setting.autoPlayVoice) {
+      return;
+    }
+    String wavFilePath = DB.azureProxy.getWavFilePath(textId);
+    String visemesFilePath = DB.azureProxy.getVisemesFilePath(textId);
+    File wavFile = File(wavFilePath);
+    File visemesFile = File(visemesFilePath);
+    // save audio data to file
+    wavFile.writeAsBytesSync(audioData);
+    // save visemes data to file
+    String visemesJsonString = jsonEncode(visemes);
+    visemesFile.writeAsStringSync(visemesJsonString);
+    await playSpeech(id, wavFilePath, visemesJsonString);
+
+    visemesFps = visemesFps;
   }
 
   SimpleChatController({required this.topicId}) {
@@ -238,24 +259,30 @@ class SimpleChatController extends GetxController {
       MyApp.allTopics.update(topicId, message.text);
     }
     if (DB.setting.autoPlayVoice && speech) {
-      await playSpeech(message);
+      await playSpeechLocal(message);
     }
     return ret;
   }
 
-  Future<void> playSpeech(types.TextMessage message) async {
+  Future<void> playSpeechLocal(types.TextMessage message) async {
     if (message.id.isNotEmpty && message.text.isNotEmpty) {
       var rt =
           await DB.azureProxy.textToWavAndVisemes(message.text, message.id);
       if (rt.status) {
-        Log.log.fine(
-            'start sending visemes to webview, ${rt.visemesText.length} visemes');
-        MyApp.glbViewerStateKey.currentState!.appendVisemes(rt.visemesText);
-        MyApp.homePageStateKey.currentState!.changeOpacity(false);
-        await VoiceAssistant.play(rt.wavFilePath);
-        Log.log.fine('end playing speech: ${message.text}');
+        await playSpeech(message.text, rt.wavFilePath, rt.visemesText);
       }
     }
+  }
+
+  Future<void> playSpeech(
+      String textOrId, String wavFilePath, String visemesText) async {
+    Log.log.fine(
+        'start sending visemes to webview, ${visemesText.length} visemes');
+    MyApp.glbViewerStateKey.currentState!
+        .appendVisemes(visemesText, visemesFps.toString());
+    MyApp.homePageStateKey.currentState!.changeOpacity(false);
+    await VoiceAssistant.play(wavFilePath);
+    Log.log.fine('end playing speech: ${textOrId}');
   }
 
   Future<void> stopSpeech() async {
@@ -348,7 +375,7 @@ class _SimpleChatWidgetState extends State<SimpleChatWidget> {
     Log.log.fine('onMessageTap / DoubleTap: ${message.id}');
     if (DB.setting.tapPlayVoice && message is types.TextMessage) {
       SimpleChatController controller = Get.find<SimpleChatController>();
-      controller.playSpeech(message);
+      controller.playSpeechLocal(message);
     }
   }
 }

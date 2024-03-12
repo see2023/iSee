@@ -156,7 +156,7 @@ class LivePushControl extends GetxController {
   }
 
   // recieve audio data chunk, assemble it to a complete audio file
-  void onAudioData(
+  LkAudioData? onAudioData(
       Uint8List data, String id, int chunk_count, int chunk_index) {
     LkAudioChunk audioChunkData = LkAudioChunk()
       ..chunk_count = chunk_count
@@ -194,10 +194,12 @@ class LivePushControl extends GetxController {
             LkAudioData.fromMsgPack(Uint8List.fromList(audioRawData));
         Log.log.info(
             'livekit audio, id: $id, text_id: ${audioData.text_id}, audio time: ${audioData.visemes.length / audioData.visemes_fps}');
+        return audioData;
       } catch (e) {
         Log.log.warning('livekit audio deserialize error: $e');
       }
     }
+    return null;
   }
 
   Future<void> onData(DataReceivedEvent e) async {
@@ -259,7 +261,12 @@ class LivePushControl extends GetxController {
             .warning('livekit audio, invalid id or chunk_count or chunk_index');
         return Future.value();
       }
-      onAudioData(Uint8List.fromList(e.data), id, chunk_count, chunk_index);
+      LkAudioData? audioData =
+          onAudioData(Uint8List.fromList(e.data), id, chunk_count, chunk_index);
+      if (audioData != null) {
+        await chatController.addWavAndVisemes(id, audioData.text_id,
+            audioData.audio_data, audioData.visemes, audioData.visemes_fps);
+      }
 
       return Future.value();
     } else {

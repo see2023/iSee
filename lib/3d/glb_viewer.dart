@@ -76,8 +76,9 @@ function toggleAutoRotate(texture) {
     _controller?.runJavaScript('clearVisemes()');
   }
 
-  void appendVisemes(String visemesValuesString) {
-    _controller?.runJavaScript('appendVisemes("$visemesValuesString")');
+  void appendVisemes(String visemesValuesString, String visemesFps) {
+    _controller
+        ?.runJavaScript('appendVisemes("$visemesValuesString", "$visemesFps")');
   }
 
   void sendMouthSmileMorphTargetInfluence(int influence) {

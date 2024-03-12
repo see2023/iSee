@@ -106,6 +106,14 @@ class AzureProxy {
     }
   }
 
+  String getWavFilePath(String fileID) {
+    return '${DB.cacheDirPath}/$fileID.wav';
+  }
+
+  String getVisemesFilePath(String fileID) {
+    return '${DB.cacheDirPath}/$fileID.visemes.json';
+  }
+
   /*
 	request: {
     ... , // basic auth from SeeProxy
@@ -116,8 +124,8 @@ class AzureProxy {
   Future<AzureRes> textToWavAndVisemes(String text, String fileID,
       {bool keepVisemes = true, String thisVoiceName = ''}) async {
     var rt = AzureRes();
-    rt.wavFilePath = '${DB.cacheDirPath}/$fileID.wav';
-    rt.visemesFilePath = '${DB.cacheDirPath}/$fileID.visemes.json';
+    rt.wavFilePath = getWavFilePath(fileID);
+    rt.visemesFilePath = getVisemesFilePath(fileID);
     // check if file exists
     File wavFile = File(rt.wavFilePath);
     File visemesFile = File(rt.visemesFilePath);
