@@ -73,10 +73,11 @@ class SimpleChatController extends GetxController {
   }
 
   Future<void> addWavAndVisemes(String id, String textId, Uint8List audioData,
-      List<List<int>> visemes, double visemesFps) async {
+      List<List<int>> visemes, double fps) async {
     if (DB.setting.autoPlayVoice) {
       return;
     }
+    visemesFps = fps;
     String wavFilePath = DB.azureProxy.getWavFilePath(textId);
     String visemesFilePath = DB.azureProxy.getVisemesFilePath(textId);
     File wavFile = File(wavFilePath);
@@ -87,8 +88,6 @@ class SimpleChatController extends GetxController {
     String visemesJsonString = jsonEncode(visemes);
     visemesFile.writeAsStringSync(visemesJsonString);
     await playSpeech(id, wavFilePath, visemesJsonString);
-
-    visemesFps = visemesFps;
   }
 
   SimpleChatController({required this.topicId}) {
@@ -277,7 +276,7 @@ class SimpleChatController extends GetxController {
   Future<void> playSpeech(
       String textOrId, String wavFilePath, String visemesText) async {
     Log.log.fine(
-        'start sending visemes to webview, ${visemesText.length} visemes');
+        'start sending visemes to webview, ${visemesText.length} visemes, visemesFps: $visemesFps');
     MyApp.glbViewerStateKey.currentState!
         .appendVisemes(visemesText, visemesFps.toString());
     MyApp.homePageStateKey.currentState!.changeOpacity(false);

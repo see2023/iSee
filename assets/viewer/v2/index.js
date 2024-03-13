@@ -204,8 +204,10 @@ async function appendVisemes(visemesValuesString, fps) {
 			light_intensity_delta = 0.8;
 		}
 		visemes = visemes.concat(newVisemes);
-		visemesFps = fps;
-		console.log('appendVisemes: ', newVisemes, ', visemes.length: ', visemes.length)
+		if (fps > 0) {
+			visemesFps = fps;
+		}
+		console.log('appendVisemes, visemes.length: ', visemes.length, ', visemesFps: ', visemesFps, ", fps: ", fps)
 		sendMessageToApp("append new visemes.length: " + newVisemes.length + ', visemes.length: ' + visemes.length);
 	} catch (error) {
 		sendMessageToApp("error parsing visemes: " + error)

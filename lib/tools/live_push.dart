@@ -158,6 +158,8 @@ class LivePushControl extends GetxController {
   // recieve audio data chunk, assemble it to a complete audio file
   LkAudioData? onAudioData(
       Uint8List data, String id, int chunk_count, int chunk_index) {
+    Log.log.fine(
+        "livekit debug got audio data, id: $id, chunk_count: $chunk_count, chunk_index: $chunk_index");
     LkAudioChunk audioChunkData = LkAudioChunk()
       ..chunk_count = chunk_count
       ..chunk_index = chunk_index
