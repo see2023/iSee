@@ -94,8 +94,7 @@ class LivePushControl extends GetxController {
         iceRestart: Duration(seconds: 10),
       ));
   String roomName = 'my-room';
-  final Room room =
-      Room(connectOptions: connectOptions, roomOptions: roomOptions);
+  final Room room = Room(roomOptions: roomOptions);
   String token = '';
   late final _listener = room.createListener();
   final audioChunkMap = <String, List<LkAudioChunk>>{};
@@ -124,7 +123,8 @@ class LivePushControl extends GetxController {
         Log.log.warning('livekit getToken error');
         return false;
       }
-      await room.connect(DB.setting.liveWsUrl, token);
+      await room.connect(DB.setting.liveWsUrl, token,
+          connectOptions: connectOptions);
       Log.log.info('livekit connect finish');
       Future.delayed(Duration(seconds: 1), () async {
         await publish();

@@ -141,7 +141,9 @@ const createScene = async function () {
 		// mouthSmileMorphTarget.influence += (influenceToSet - mouthSmileMorphTarget.influence) * 0.03;
 		// setting morphTarget.influence every frame
 		// visemes 60 fps
+		let delay = 100
 		let now = new Date().getTime();
+		now -= delay;
 		if (!visemes || visemes.length < 1 || !visemesStartTime) {
 			return;
 		}

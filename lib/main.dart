@@ -17,7 +17,7 @@ import 'package:see_me_now/ui/prompts_page.dart';
 import 'package:see_me_now/ui/setting_page.dart';
 import 'package:see_me_now/ui/vehicle/vehicle_page.dart';
 import 'package:simple_logger/simple_logger.dart';
-import 'package:wakelock/wakelock.dart';
+import 'package:wakelock_plus/wakelock_plus.dart';
 
 // APP
 class MyApp extends StatefulWidget {
@@ -114,7 +114,7 @@ class _MyAppState extends State<MyApp> with WidgetsBindingObserver {
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
-  Wakelock.enable();
+  WakelockPlus.enable();
   Log.setLevel(Level.FINE);
   await DB.init();
   if (DB.isRelease) {
